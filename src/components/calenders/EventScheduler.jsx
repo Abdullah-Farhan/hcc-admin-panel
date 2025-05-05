@@ -39,13 +39,12 @@ const EventScheduler = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center h-full">
+      <div className="flex justify-between items-center h-full mb-5">
         <h2 className="font-light text-xl">Calender</h2>
         <button className="px-2 py-1 border rounded-lg border-gray-500 cursor-pointer hover:bg-gray-100" onClick={()=>setIsAddEventPopupOpen(true)}>
           + Add Event
         </button>
       </div>
-      <h2 className="text-lg font-semibold mb-4">Event Scheduler</h2>
       <div className="flex space-x-2">
         <DatePicker
           selected={startDate}

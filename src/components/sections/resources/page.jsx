@@ -16,7 +16,7 @@ const page = () => {
   return (
     <div className="bg-white rounded-lg p-6 mt-5">
       <div className="flex justify-between">
-        <p className="text-xl font-light">Resources</p>
+        <p className="text-3xl font-light">Resources</p>
         <button
           onClick={() => setIsResourceOpen(true)}
           href={"/member-progress"}

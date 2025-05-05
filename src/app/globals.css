@@ -1,11 +1,10 @@
 @import "tailwindcss";
 
-@theme inline {
+@theme {
   --color-primary: #3FA9F5;
 }
 
 
 body {
   background: #fafafa;
-  font-family: Arial, Helvetica, sans-serif;
 }
