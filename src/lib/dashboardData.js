@@ -61,6 +61,20 @@ export const members = [
       ]
     },
     {
+        "name": "Alex Johnson",
+        "program": "90 Days",
+        "progress": 82,
+        "currentTask": "Q1 Analytics Report",
+        "taskStatus": "In Progress",
+        "email": "alex.johnson@example.com",
+        "startDate": "2025-01-15",
+        "tasks": [
+          { "taskName": "Q1 Analytics Report", "completed": false },
+          { "taskName": "Data Analysis", "completed": false },
+          { "taskName": "Budget Planning", "completed": true }
+        ]
+      },
+    {
       "name": "Sarah Miller",
       "program": "Graduation Program",
       "progress": 45,
@@ -117,3 +131,30 @@ export const members = [
       ]
     }
   ];
+
+  export const resources = [
+    {
+      name: "test",
+      role: "test",
+      email: "test@gmail.com",
+    },
+    {
+      name: "test",
+      role: "test",
+      email: "test@gmail.com",
+      phone: "123",
+      department: "test",
+      location: "test",
+      description: "test"
+    },
+    {
+      name: "test",
+      role: "test",
+      email: "test@gmail.com",
+      phone: "123",
+      department: "test",
+      location: "test",
+      description: "test"
+    },
+  ]
+  

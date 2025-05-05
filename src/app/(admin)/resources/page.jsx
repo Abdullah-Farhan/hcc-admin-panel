@@ -1,8 +1,8 @@
-import React from 'react'
+import Resources from "@/components/sections/resources/page"
 
 const page = () => {
   return (
-    <div>page</div>
+    <Resources />
   )
 }
 

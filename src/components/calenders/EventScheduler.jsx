@@ -39,7 +39,7 @@ const EventScheduler = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center h-full">
         <h2 className="font-light text-xl">Calender</h2>
         <button className="px-2 py-1 border rounded-lg border-gray-500 cursor-pointer hover:bg-gray-100" onClick={()=>setIsAddEventPopupOpen(true)}>
           + Add Event
