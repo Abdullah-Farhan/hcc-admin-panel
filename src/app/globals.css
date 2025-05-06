@@ -8,3 +8,15 @@
 body {
   background: #fafafa;
 }
+
+.event-day::after {
+  content: "";
+  display: block;
+  margin: 0 auto;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: #3FA9F5;
+  margin-top: 2px;
+}
+

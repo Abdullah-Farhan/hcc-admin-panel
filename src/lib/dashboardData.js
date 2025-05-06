@@ -49,6 +49,7 @@ export const members = [
     {
       "name": "Alex Johnson",
       "program": "90 Days",
+      "role": "Fletcher",
       "progress": 75,
       "currentTask": "Q1 Analytics Report",
       "taskStatus": "In Progress",
@@ -63,6 +64,7 @@ export const members = [
     {
         "name": "Alex Johnson",
         "program": "90 Days",
+        "role": "Fletcher",
         "progress": 82,
         "currentTask": "Q1 Analytics Report",
         "taskStatus": "In Progress",
@@ -77,6 +79,7 @@ export const members = [
     {
       "name": "Sarah Miller",
       "program": "Graduation Program",
+      "role": "Fletcher",
       "progress": 45,
       "currentTask": "Client Presentations",
       "taskStatus": "In Progress",
@@ -91,6 +94,7 @@ export const members = [
     {
       "name": "Michael Chen",
       "program": "Before Kitchen Use",
+      "role": "Fletcher",
       "progress": 90,
       "currentTask": "Recipe Development",
       "taskStatus": "Completed",
@@ -105,6 +109,7 @@ export const members = [
     {
       "name": "Emily Davis",
       "program": "90 Days",
+      "role": "Fletcher",
       "progress": 60,
       "currentTask": "Menu Planning",
       "taskStatus": "In Progress",
@@ -119,6 +124,7 @@ export const members = [
     {
       "name": "James Smith",
       "program": "Graduation Program",
+      "role": "Fletcher",
       "progress": 80,
       "currentTask": "Performance Review",
       "taskStatus": "In Progress",

@@ -1,8 +1,8 @@
-import React from 'react'
+import MemberProgress from "@/components/sections/member-progress/page"
 
 const page = () => {
   return (
-    <div>page</div>
+    <MemberProgress />
   )
 }
 

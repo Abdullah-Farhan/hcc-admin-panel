@@ -52,6 +52,12 @@ const EventScheduler = () => {
           dateFormat="MMMM d, yyyy"
           inline
           className="border rounded-lg p-2 w-full"
+          dayClassName={(date) => {
+            const isoDate = date.toLocaleDateString("en-CA"); 
+            const hasEvent = events.some(event => event.date === isoDate);
+            return hasEvent ? "event-day" : undefined;
+          }}
+          
         />
         <div className="w-full rounded-lg ml-2 border border-gray-300 h-72">
           <h1 className="border-b border-b-gray-300 bg-gray-50 font-semibold p-4 rounded-t-lg">
