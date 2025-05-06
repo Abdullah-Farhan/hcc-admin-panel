@@ -99,7 +99,7 @@ const page = () => {
               </button>
             </div>
             {resources.length > 0 ? (
-              <div className="grid grid-cols-2 mt-2 gap-2 max-h-56 overflow-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 mt-2 gap-2 max-h-56 overflow-auto">
                 {resourceData.map((resource, index) => (
                   <ResourceCard
                     data={resource}

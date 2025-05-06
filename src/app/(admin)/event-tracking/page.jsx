@@ -1,8 +1,8 @@
-import React from 'react'
+import EventTracking from "@/components/sections/event-tracking/page"
 
 const page = () => {
   return (
-    <div>page</div>
+    <EventTracking />
   )
 }
 

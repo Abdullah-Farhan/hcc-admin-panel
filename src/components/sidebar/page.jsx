@@ -7,13 +7,13 @@ import { usePathname, useRouter } from "next/navigation";
 const Page = () => {
   const [activeTab, setActiveTab] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const router = useRouter()
+  const router = useRouter();
   const path = usePathname();
 
   const handleTabChange = (item) => {
     setActiveTab(item.label);
-    setIsOpen(false); 
-    router.push(item.path)
+    setIsOpen(false);
+    router.push(item.path);
   };
 
   useEffect(() => {
@@ -24,14 +24,19 @@ const Page = () => {
       case "/resources":
         setActiveTab("Resources");
         break;
-      case "/settings":
-        setActiveTab("Settings");
+      case "/member-progress":
+        setActiveTab("Member Progress");
         break;
-      // Add more cases as needed
+      case "/rent-tracker":
+        setActiveTab("Rent Tracker");
+        break;
+      case "/event-tracking":
+        setActiveTab("Event Tracking");
+        break;
       default:
-        setActiveTab(""); // or a fallback tab
+        setActiveTab("");
     }
-  }, [path]);
+  });
 
   return (
     <>
@@ -50,11 +55,11 @@ const Page = () => {
       )}
 
       <div
-        className={`fixed md:static top-0 left-0 w-64 bg-white
-        border-r border-gray-300/50 flex flex-col h-full
-        transform transition-transform duration-300 ease-in-out z-50
-        ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
-        overflow-y-auto`}
+        className={`fixed md:static top-0 left-0 md:w-64 w-0 bg-white
+  border-r border-gray-300/50 flex flex-col h-full
+  transform transition-transform duration-300 ease-in-out z-50
+  ${isOpen ? "translate-x-0 w-64" : "-translate-x-full md:translate-x-0"}
+  overflow-y-auto`}
       >
         <div className="p-6 flex items-center space-x-2">
           <div className="rounded-lg w-8 h-8 flex justify-center items-center text-white font-medium bg-primary">
