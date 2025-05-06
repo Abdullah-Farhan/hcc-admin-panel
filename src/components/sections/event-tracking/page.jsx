@@ -5,9 +5,11 @@ import { CirclePlus } from "lucide-react";
 import EventsCard from "@/components/cards/EventsCard";
 import { events } from "@/lib/eventData";
 import EducationCard from "@/components/cards/EducationCard";
+import AddEventTypePopup from "@/components/popups/AddEventTypePopup";
 
 const page = () => {
   const [selectedTab, setSelectedTab] = useState("Pit Sessions");
+  const [addEventPopup, setAddEventPopup] = useState(false);
 
   const getFilteredEvents = () => {
     if (selectedTab === "Pit Sessions") {
@@ -50,7 +52,7 @@ const page = () => {
             </button>
           ))}
         </div>
-        <button className="flex items-center cursor-pointer bg-primary rounded-lg px-4 h-10 text-white w-full md:w-auto justify-center md:justify-start">
+        <button onClick={()=>setAddEventPopup(true)} className="flex items-center cursor-pointer bg-primary rounded-lg px-4 h-10 text-white w-full md:w-auto justify-center md:justify-start">
           <CirclePlus className="mr-2" width={16} /> Add Event
         </button>
       </div>
@@ -64,6 +66,7 @@ const page = () => {
       {selectedTab === "Education Hours" && (
         <div className="mt-6"><EducationCard /></div>
       )}
+      {addEventPopup && <AddEventTypePopup title={selectedTab} onClose={()=>setAddEventPopup(false)} />}
     </div>
   );
 };
