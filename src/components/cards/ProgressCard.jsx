@@ -2,11 +2,13 @@
 import { useState, useEffect } from "react";
 import { ListChecks, Plus } from "lucide-react";
 import ProgressStatsPopup from "../popups/ProgressStatsPopup";
+import TaskPopup from "../popups/TaskPopup";
 
 const ProgressCard = ({ data, checklist = false }) => {
   const [isListPopupOpen, setIsListPopupOpen] = useState(false);
   const [taskData, setTaskData] = useState(data.tasks);
   const [progress, setProgress] = useState(data.progress);
+  const [isTaskPopupOpen, setIsTaskPopupOpen] = useState(false);
 
   useEffect(() => {
     // Calculate progress based on completed tasks
@@ -87,7 +89,7 @@ const ProgressCard = ({ data, checklist = false }) => {
                     }
                   </span>
                 </div>
-                <Plus className="hover:bg-gray-100 border border-gray-400 rounded-lg cursor-pointer h-8 w-8 p-2" />
+                <Plus onClick={() => setIsListPopupOpen(true)} className="hover:bg-gray-100 border border-gray-400 rounded-lg cursor-pointer h-8 w-8 p-2" />
               </>
             )}
           </div>

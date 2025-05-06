@@ -22,89 +22,93 @@ const EventScheduler = () => {
     }
   };
 
-  const onClose = () => {
-    setIsAddEventPopupOpen(false);
-  };
+  const onClose = () => setIsAddEventPopupOpen(false);
+  const handleDateChange = (date) => setStartDate(date);
 
-  const handleDateChange = (date) => {
-    setStartDate(date);
-    console.log("Selected date:", date);
-  };
-
-  const formattedDate = startDate ? startDate.toDateString() : "Select a date";
-
+  const formattedDate = startDate.toDateString();
   const selectedDate = startDate.toISOString().split("T")[0];
-
-  const todaysEvents = events.filter((event) => event.date === selectedDate);
+  const todaysEvents = events.filter(event => event.date === selectedDate);
 
   return (
-    <div>
-      <div className="flex justify-between items-center h-full mb-5">
-        <h2 className="font-light text-xl">Calender</h2>
-        <button className="px-2 py-1 border rounded-lg border-gray-500 cursor-pointer hover:bg-gray-100" onClick={()=>setIsAddEventPopupOpen(true)}>
+    <div className="bg-white px-2 py-6 rounded-xl shadow-sm">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-semibold text-gray-800">Calendar</h2>
+        <button
+          className="text-sm px-4 py-2 rounded-md border border-gray-400 text-gray-700 hover:bg-gray-100 transition"
+          onClick={() => setIsAddEventPopupOpen(true)}
+        >
           + Add Event
         </button>
       </div>
-      <div className="flex space-x-2 flex-col md:flex-row">
-        <DatePicker
-          selected={startDate}
-          onChange={handleDateChange}
-          dateFormat="MMMM d, yyyy"
-          inline
-          className="border rounded-lg p-2 w-full"
-          dayClassName={(date) => {
-            const isoDate = date.toLocaleDateString("en-CA"); 
-            const hasEvent = events.some(event => event.date === isoDate);
-            return hasEvent ? "event-day" : undefined;
-          }}
-          
-        />
-        <div className="w-full rounded-lg ml-2 border border-gray-300 h-72">
-          <h1 className="border-b border-b-gray-300 bg-gray-50 font-semibold p-4 rounded-t-lg">
+
+      <div className="flex flex-col md:flex-row md:gap-2">
+        <div className="custom-datepicker">
+          <DatePicker
+            selected={startDate}
+            onChange={handleDateChange}
+            dateFormat="MMMM d, yyyy"
+            inline
+            dayClassName={(date) => {
+              const isoDate = date.toLocaleDateString("en-CA");
+              const isToday = new Date().toDateString() === date.toDateString();
+              const hasEvent = events.some(event => event.date === isoDate);
+              return [
+                hasEvent ? "has-event" : "",
+                isToday ? "today-highlight" : "",
+              ].join(" ");
+            }}
+          />
+        </div>
+
+        <div className="w-full border border-gray-300 rounded-lg mt-6 md:mt-0">
+          <h1 className="p-4 border-b border-gray-300 font-semibold bg-gray-50 rounded-t-lg">
             {formattedDate}
           </h1>
-          <div className="p-4 overflow-auto max-h-56">
+          <div className="p-2 space-y-3 overflow-auto max-h-60">
             {todaysEvents.length > 0 ? (
               todaysEvents.map((event, index) => (
                 <div
                   key={index}
-                  className="border border-gray-300 rounded-lg p-2 mb-2"
+                  className="border border-gray-200 rounded-lg p-3 bg-white shadow-sm"
                 >
-                  <div className="flex justify-between w-full">
-                    <h2 className="font-normal flex text-sm">
-                      {event.title}{" "}
-                      <span className="text-gray-500 text-xs flex items-center mx-2">
-                        {" "}
-                        <span className="flex items-center">
-                          {event.time ? (
-                            <>
-                              <Clock className="mr-2 w-3 h-3" /> {event.time}
-                            </>
-                          ) : (
-                            "No Date"
-                          )}
+                  <div className="flex justify-between items-start">
+                    <div className="text-sm font-medium text-gray-800">
+                      {event.title}
+                      {event.time && (
+                        <span className="ml-1 text-gray-500 text-xs inline-flex items-center">
+                          <Clock className="w-3 h-3 mr-1" />
+                          {event.time}
                         </span>
-                      </span>
-                    </h2>
-                    <button 
-                      className="text-[10px] text-gray-400 hover:bg-gray-100 cursor-pointer hover:text-red-400"
+                      )}
+                    </div>
+                    <button
+                      className="text-xs text-gray-400 hover:text-red-500 hover:underline"
                       onClick={() => onRemove(event.date, event.title)}
                     >
                       Remove
                     </button>
                   </div>
-                  <p className="text-gray-600">
-                    {event?.description ? event.description : "No Description"}
+                  <p className="text-sm text-gray-600 mt-1">
+                    {event?.description || "No Description"}
                   </p>
                 </div>
               ))
             ) : (
-              <p className="text-gray-400">No events scheduled for this date.</p>
+              <p className="text-gray-400 text-sm">
+                No events scheduled for this date.
+              </p>
             )}
           </div>
         </div>
       </div>
-      {isAddEventPopupOpen && <AddEventPopup onAdd={onAdd} onClose={onClose} selectedDate={startDate} />}
+
+      {isAddEventPopupOpen && (
+        <AddEventPopup
+          onAdd={onAdd}
+          onClose={onClose}
+          selectedDate={startDate}
+        />
+      )}
     </div>
   );
 };
