@@ -45,7 +45,7 @@ const EventScheduler = () => {
           + Add Event
         </button>
       </div>
-      <div className="flex space-x-2">
+      <div className="flex space-x-2 flex-col md:flex-row">
         <DatePicker
           selected={startDate}
           onChange={handleDateChange}
