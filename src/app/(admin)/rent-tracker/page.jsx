@@ -1,8 +1,8 @@
-import React from 'react'
+import RentTracker from "@/components/sections/rent-tracker/page"
 
 const page = () => {
   return (
-    <div>page</div>
+    <RentTracker />
   )
 }
 

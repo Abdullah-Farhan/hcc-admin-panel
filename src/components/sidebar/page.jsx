@@ -56,7 +56,7 @@ const Page = () => {
 
       <div
         className={`fixed md:static top-0 left-0 md:w-64 w-0 bg-white
-  border-r border-gray-300/50 flex flex-col h-full
+  border-r border-gray-300/50 flex flex-col h-screen
   transform transition-transform duration-300 ease-in-out z-50
   ${isOpen ? "translate-x-0 w-64" : "-translate-x-full md:translate-x-0"}
   overflow-y-auto`}
