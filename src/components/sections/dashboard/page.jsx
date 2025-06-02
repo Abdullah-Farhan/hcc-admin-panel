@@ -10,15 +10,55 @@ import { toast } from "react-toastify";
 import useDashboardStore from "@/services/dashboard.service";
 import useResourcesStore from "@/services/resources.service";
 import useProgressStore from "@/services/progress.service";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
+
+const ProgressCardSkeleton = () => (
+  <div className="rounded-lg border border-gray-200 p-4 shadow-sm bg-white">
+    <div className="flex justify-between items-center">
+      <div className="flex gap-2 items-center">
+        <Skeleton circle width={40} height={40} />
+        <div>
+          <Skeleton width={120} />
+          <Skeleton width={80} />
+        </div>
+      </div>
+      <Skeleton width={60} height={20} />
+    </div>
+    <div className="mt-4">
+      <Skeleton height={8} count={3} />
+    </div>
+  </div>
+);
+
+const ResourceCardSkeleton = () => (
+  <div className="rounded-lg border border-gray-200 p-4 shadow-sm bg-white">
+    <div className="flex justify-between">
+      <div className="flex gap-2 items-center">
+        <Skeleton circle width={20} height={20} />
+        <div>
+          <Skeleton width={150} />
+          <Skeleton width={100} />
+        </div>
+      </div>
+      <Skeleton width={60} />
+    </div>
+    <div className="mt-4 space-y-2">
+      <Skeleton width={120} />
+      <Skeleton width={140} />
+      <Skeleton width={100} />
+    </div>
+  </div>
+);
 
 const page = () => {
   const [selectedProgress, setSelectedProgress] = useState("Within 90 Days");
   const [isResourceOpen, setIsResourceOpen] = useState(false);
-  const resourceData = useResourcesStore(state => state.resources)
+  const resourceData = useResourcesStore(state => state.resources);
+  const resourceLoading = useResourcesStore(state => state.loading);
+  const progressLoading = useProgressStore(state => state.loading);
   const { fetchDashboardData } = useDashboardStore();
   const progressData = useProgressStore(state => state.progressGroups);
-  console.log(progressData);
-  
 
   const onClose = () => {
     setIsResourceOpen(false);
@@ -94,7 +134,11 @@ const page = () => {
             </div>
 
             <div className="mt-4 space-y-4 max-h-72 overflow-auto">
-              {filteredProgressData.length > 0 ? (
+              {progressLoading ? (
+                Array(3).fill(0).map((_, index) => (
+                  <ProgressCardSkeleton key={index} />
+                ))
+              ) : filteredProgressData.length > 0 ? (
                 filteredProgressData.map((member, index) => (
                   <ProgressCard 
                     key={index} 
@@ -121,7 +165,13 @@ const page = () => {
                 + Add Resource
               </button>
             </div>
-            {resourceData.length > 0 ? (
+            {resourceLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 mt-2 gap-2 max-h-56 overflow-auto">
+                {Array(4).fill(0).map((_, index) => (
+                  <ResourceCardSkeleton key={index} />
+                ))}
+              </div>
+            ) : resourceData.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 mt-2 gap-2 max-h-56 overflow-auto">
                 {resourceData.map((resource, index) => (
                   <ResourceCard

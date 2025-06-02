@@ -21,12 +21,12 @@ export const sidebarLinks = {
       active: false,
       path:"/rent-tracker"
     },
-    {
-      label: "Event Tracking",
-      icon: Medal,
-      active: false,
-      path:"/event-tracking"
-    },
+    // {
+    //   label: "Event Tracking",
+    //   icon: Medal,
+    //   active: false,
+    //   path:"/event-tracking"
+    // },
     {
       label: "Resources",
       icon: FileText,
