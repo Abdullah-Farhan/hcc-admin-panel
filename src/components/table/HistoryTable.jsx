@@ -1,6 +1,10 @@
 import { CheckCircle, Circle } from "lucide-react";
+import { toast } from "react-toastify";
+import useRentStore from "@/services/rent.service";
 
 const HistoryTable = ({ data }) => {
+  const { updateRent, addRent } = useRentStore();
+
   const getLastSixMonths = () => {
     const months = [];
     const currentDate = new Date();
@@ -18,24 +22,58 @@ const HistoryTable = ({ data }) => {
 
   const months = getLastSixMonths();
 
+  const handleStatusToggle = async (userId, month, currentStatus, rentRecord) => {
+    try {
+      const newStatus = currentStatus === "Paid" ? "Unpaid" : "Paid";
+      const updatedRentData = {
+        ...rentRecord,
+        status: newStatus,
+        paidAt: newStatus === "Paid" ? new Date().toISOString() : ""
+      };
+
+      await updateRent(userId, rentRecord.firebaseId, updatedRentData);
+      toast.success(`Rent marked as ${newStatus}`);
+    } catch (error) {
+      console.error("Error updating rent status:", error);
+      toast.error("Failed to update rent status");
+    }
+  };
+
+  const handleCreateAndToggle = async (userId, month, monthlyRent) => {
+    try {
+      const newRentData = {
+        month: month,
+        amount: monthlyRent,
+        status: "Paid",
+        paidAt: new Date().toISOString(),
+        createdAt: new Date().toISOString()
+      };
+
+      await addRent(userId, newRentData);
+      toast.success("Rent record created and marked as paid");
+    } catch (error) {
+      console.error("Error creating rent record:", error);
+      toast.error("Failed to create rent record");
+    }
+  };
+
   const tableData = data.map(rent => {
     const user = rent.user;
     const rentHistory = rent.rents;
     
-    // Get the most recent rent amount
     const latestRent = rentHistory.sort((a, b) => 
       new Date(b.createdAt) - new Date(a.createdAt)
     )[0];
 
     const monthStatus = {};
+    const monthRentRecords = {};
     months.forEach(({ label }) => {
-      // Check all rent records for this month
       const monthRents = rentHistory.filter(rent => 
         rent.month.toLowerCase() === label
       );
       
-      // If any rent record for this month is Paid, show checkmark
       monthStatus[label] = monthRents.some(rent => rent.status === "Paid");
+      monthRentRecords[label] = monthRents[0];
     });
 
     const totalPaid = rentHistory.reduce((sum, r) => {
@@ -43,11 +81,13 @@ const HistoryTable = ({ data }) => {
     }, 0);
 
     return {
+      userId: user.id,
       name: user.fullName,
       department: user.role,
       monthlyRent: latestRent?.amount || 0,
       totalPaid: totalPaid,
-      ...monthStatus
+      monthStatus,
+      monthRentRecords
     };
   });
 
@@ -76,18 +116,40 @@ const HistoryTable = ({ data }) => {
                 <td className="p-3 border-b border-b-gray-300">{person.department}</td>
                 <td className="p-3 border-b border-b-gray-300">${person.monthlyRent}</td>
                 <td className="p-3 border-b border-b-gray-300 text-blue-600">${person.totalPaid}</td>
-                {months.map(({ label }) => (
-                  <td
-                    key={label}
-                    className="p-3 text-center border-b border-b-gray-300"
-                  >
-                    {person[label] ? (
-                      <CheckCircle className="text-green-500 w-5 h-5 inline" />
-                    ) : (
-                      <Circle className="text-red-500 w-5 h-5 inline" />
-                    )}
-                  </td>
-                ))}
+                {months.map(({ label }) => {
+                  const rentRecord = person.monthRentRecords[label];
+                  const isPaid = person.monthStatus[label];
+                  const isCurrentMonth = label === months[0].label; 
+                  
+                  return (
+                    <td
+                      key={label}
+                      className="p-3 text-center border-b border-b-gray-300"
+                    >
+                      {rentRecord ? (
+                        <button
+                          onClick={() => handleStatusToggle(person.userId, label, rentRecord.status, rentRecord)}
+                          className="focus:outline-none"
+                        >
+                          {isPaid ? (
+                            <CheckCircle className="text-green-500 w-5 h-5 inline hover:text-green-600" />
+                          ) : (
+                            <Circle className="text-red-500 w-5 h-5 inline hover:text-red-600" />
+                          )}
+                        </button>
+                      ) : isCurrentMonth ? (
+                        <button
+                          onClick={() => handleCreateAndToggle(person.userId, label, person.monthlyRent)}
+                          className="focus:outline-none"
+                        >
+                          <Circle className="text-gray-400 w-5 h-5 inline hover:text-gray-500" />
+                        </button>
+                      ) : (
+                        <Circle className="text-gray-300 w-5 h-5 inline" />
+                      )}
+                    </td>
+                  );
+                })}
               </tr>
             ))}
           </tbody>

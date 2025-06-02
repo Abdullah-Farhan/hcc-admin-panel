@@ -7,8 +7,9 @@ import useProgressStore from "./progress.service";
 const useDashboardStore = create(
   persist(
     (set, get) => ({
-      loading: false,
+      loading: true,
       error: null,
+      initialized: false,
 
       fetchDashboardData: async () => {
         try {
@@ -23,15 +24,16 @@ const useDashboardStore = create(
           const { fetchAllUsersProgress } = useProgressStore.getState();
           await fetchAllUsersProgress();
 
-          set({ loading: false });
+          set({ loading: false, initialized: true });
         } catch (error) {
-          set({ error, loading: false });
+          set({ error, loading: false, initialized: true });
           console.error("Error fetching dashboard data:", error);
         }
       },
     }),
     {
       name: "dashboard-storage",
+      partialize: (state) => ({ initialized: state.initialized }),
     }
   )
 );

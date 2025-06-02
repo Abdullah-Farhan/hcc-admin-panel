@@ -28,7 +28,7 @@ export default function RootLayout({ children }) {
         </div>
 
         <div className="md:pl-64">
-          <div className="p-4">
+          <div className="p-4 mt-10 md:mt-0">
             {children}
             <ToastContainer
               position="top-right"

@@ -57,21 +57,34 @@ const page = () => {
   const resourceData = useResourcesStore(state => state.resources);
   const resourceLoading = useResourcesStore(state => state.loading);
   const progressLoading = useProgressStore(state => state.loading);
-  const { fetchDashboardData } = useDashboardStore();
+  const { fetchDashboardData, loading: dashboardLoading, initialized } = useDashboardStore();
   const progressData = useProgressStore(state => state.progressGroups);
+  const { deleteResourceById } = useResourcesStore();
 
   const onClose = () => {
     setIsResourceOpen(false);
   };
 
+  const handleRemove = async (id) => {
+    try {
+      await deleteResourceById(id);
+      toast.success("Resource removed successfully!");
+    } catch (error) {
+      console.error("Error removing resource:", error);
+      toast.error("Failed to remove resource. Please try again.");
+    }
+  };
+
   const getDashboardData = async () => {
     await fetchDashboardData();    
   }
-  useEffect(() => {
-    getDashboardData()
-  }, [])
 
-  // Filter progress data based on selected progress type
+  useEffect(() => {
+    if (!initialized) {
+      getDashboardData();
+    }
+  }, [initialized]);
+
   const filteredProgressData = progressData.filter((member) => {
     const tasks = member.tasks || [];
     const hasTasksInSection = tasks.some(task => task.section === selectedProgress);
@@ -81,6 +94,46 @@ const page = () => {
     if (selectedProgress === "Before Kitchen Use") return hasTasksInSection;
     return true;
   });
+  
+  if (!initialized || dashboardLoading) {
+    return (
+      <div className="px-8 py-10">
+        <h1 className="text-3xl font-light">Dashboard</h1>
+        <div className="flex flex-col lg:flex-row w-full space-y-5 lg:space-y-0 lg:space-x-2 mt-4">
+          <div className="h-full bg-white rounded-lg w-full lg:w-1/2 p-6">
+            <Skeleton height={400} />
+          </div>
+          <div className="h-full w-full lg:w-1/2">
+            <div className="bg-white rounded-lg p-6">
+              <div className="flex justify-between">
+                <Skeleton width={150} height={24} />
+                <Skeleton width={80} height={24} />
+              </div>
+              <div className="w-full flex space-x-2 rounded bg-gray-200 p-1 mt-6">
+                <Skeleton height={32} count={3} />
+              </div>
+              <div className="mt-4 space-y-4">
+                {Array(3).fill(0).map((_, index) => (
+                  <ProgressCardSkeleton key={index} />
+                ))}
+              </div>
+            </div>
+            <div className="bg-white rounded-lg p-6 mt-5">
+              <div className="flex justify-between">
+                <Skeleton width={100} height={24} />
+                <Skeleton width={120} height={32} />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 mt-2 gap-2">
+                {Array(4).fill(0).map((_, index) => (
+                  <ResourceCardSkeleton key={index} />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="px-8 py-10">
@@ -177,9 +230,7 @@ const page = () => {
                   <ResourceCard
                     data={resource}
                     key={index}
-                    onRemove={() => {
-                      toast.success("Resource Removed Successfully!")
-                    }}
+                    onRemove={() => handleRemove(resource.id)}
                   />
                 ))}
               </div>
