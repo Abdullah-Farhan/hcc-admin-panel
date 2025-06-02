@@ -1,27 +1,74 @@
 import React, { useState } from 'react';
-import { CheckCircle, Circle, Pencil, Trash2, X } from 'lucide-react';
+import { CheckCircle, Circle, Pencil, Trash2, X, Loader2 } from 'lucide-react';
 import TaskPopup from './TaskPopup';
+import { toast } from 'react-toastify';
+import useProgressStore from '@/services/progress.service';
 
-const ProgressStatsPopup = ({ data, onClose, onEditTask, onDeleteTask, onToggleTask }) => {
+const ProgressStatsPopup = ({ data, onClose, onToggleTask, selectedProgress }) => {
   const [isTaskPopupOpen, setIsTaskPopupOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingTaskId, setLoadingTaskId] = useState(null);
+  const { addTask, editTask, deleteTask } = useProgressStore();
 
-  const completedCount = data.tasks.filter(task => task.completed).length;
+  const completedCount = data?.tasks?.filter(task => task?.completed)?.length ?? 0;
 
   const openEditPopup = (task = null) => {
     setEditingTask(task);
     setIsTaskPopupOpen(true);
   };
 
-  const handleTaskSubmit = (task) => {
-    if (editingTask) {
-      onEditTask(editingTask, task);
-    } else {
-      onEditTask(null, task);
+  const handleTaskSubmit = async (taskData) => {
+    setIsLoading(true);
+    try {
+      const formattedTaskData = {
+        title: taskData.title || "",
+        notes: taskData.notes || "",
+        section: selectedProgress || ""
+      };
+
+      if (editingTask) {
+        await editTask(data.userId, editingTask.id, formattedTaskData);
+        toast.success("Task updated successfully");
+      } else {
+        await addTask(data.userId, formattedTaskData);
+        toast.success("Task added successfully");
+      }
+      setIsTaskPopupOpen(false);
+      setEditingTask(null);
+    } catch (error) {
+      console.error("Error saving task:", error);
+      toast.error("Failed to save task. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
-    setIsTaskPopupOpen(false);
-    setEditingTask(null);
   };
+
+  const handleDeleteTask = async (task) => {
+    setLoadingTaskId(task.id);
+    try {
+      await deleteTask(data.userId, task.id);
+      toast.success("Task deleted successfully");
+    } catch (error) {
+      console.error("Error deleting task:", error);
+      toast.error("Failed to delete task. Please try again.");
+    } finally {
+      setLoadingTaskId(null);
+    }
+  };
+
+  const handleToggleTask = async (userId, task) => {
+    setLoadingTaskId(task.id);
+    try {
+      await onToggleTask(userId, task);
+    } finally {
+      setLoadingTaskId(null);
+    }
+  };
+
+  const filteredTasks = selectedProgress != null
+    ? data?.tasks?.filter(task => task?.section === selectedProgress)
+    : data?.tasks;
 
   return (
     <>
@@ -31,46 +78,57 @@ const ProgressStatsPopup = ({ data, onClose, onEditTask, onDeleteTask, onToggleT
           <div className="flex justify-between items-start mb-4">
             <div>
               <h2 className="text-lg font-semibold">
-                {data.name}'s Subtasks
+                {data?.name ?? 'No Name'}'s Subtasks
                 <span className="text-sm text-gray-500 font-normal ml-2">
-                  ({data.program} Program)
+                  ({data?.program ?? 'Unknown Program'} Program)
                 </span>
               </h2>
               <p className="text-sm text-gray-600">
-                {completedCount}/{data.tasks.length} tasks completed
+                {completedCount}/{data?.tasks?.length ?? 0} tasks completed
               </p>
             </div>
-            <button onClick={onClose}>
+            <button onClick={onClose} disabled={isLoading}>
               <X className="text-gray-500 hover:text-red-500" />
             </button>
           </div>
 
           {/* Task List */}
           <div className="space-y-3 overflow-y-auto flex-1">
-            {data.tasks.map((task, index) => (
-              <div key={index} className="flex justify-between items-center border rounded px-4 py-2">
-                <div className="flex items-center space-x-2 cursor-pointer" onClick={() => onToggleTask(task)}>
-                  {task.completed ? (
-                    <CheckCircle className="text-green-500 w-4 h-4" />
-                  ) : (
-                    <Circle className="text-gray-400 w-4 h-4" />
-                  )}
-                  <span className={`text-sm ${task.completed ? 'line-through text-gray-400' : ''}`}>
-                    {task.taskName}
-                  </span>
+            {filteredTasks?.length > 0 ? (
+              filteredTasks.map((task, index) => (
+                <div key={index} className="flex justify-between items-center border rounded px-4 py-2">
+                  <div 
+                    className="flex items-center space-x-2 cursor-pointer" 
+                    onClick={() => handleToggleTask(data?.userId, task)}
+                  >
+                    {loadingTaskId === task.id ? (
+                      <Loader2 className="w-4 h-4 shrink-0 animate-spin text-gray-400" />
+                    ) : task?.completed ? (
+                      <CheckCircle className="text-green-500 w-4 h-4 shrink-0" />
+                    ) : (
+                      <Circle className="text-gray-400 w-4 h-4 shrink-0" />
+                    )}
+                    <span className={`text-sm ${task?.completed ? 'line-through text-gray-400' : ''}`}>
+                      {task?.title ?? 'Untitled Task'}
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Pencil
+                      className="w-4 h-4 text-gray-500 hover:text-blue-500 cursor-pointer"
+                      onClick={() => openEditPopup(task)}
+                      disabled={isLoading}
+                    />
+                    <Trash2
+                      className="w-4 h-4 text-red-500 hover:text-red-700 cursor-pointer"
+                      onClick={() => handleDeleteTask(task)}
+                      disabled={isLoading}
+                    />
+                  </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Pencil
-                    className="w-4 h-4 text-gray-500 hover:text-blue-500 cursor-pointer"
-                    onClick={() => openEditPopup(task)}
-                  />
-                  <Trash2
-                    className="w-4 h-4 text-red-500 hover:text-red-700 cursor-pointer"
-                    onClick={() => onDeleteTask(task)}
-                  />
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-sm text-gray-500">No tasks match the selected section.</p>
+            )}
           </div>
 
           {/* Footer */}
@@ -78,14 +136,23 @@ const ProgressStatsPopup = ({ data, onClose, onEditTask, onDeleteTask, onToggleT
             <button
               onClick={onClose}
               className="text-sm hover:text-gray-600 cursor-pointer mr-4"
+              disabled={isLoading}
             >
               Close
             </button>
             <button
-              className="px-4 py-2 text-sm bg-primary cursor-pointer hover:bg-blue-600 text-white rounded"
+              className="px-4 py-2 text-sm bg-primary cursor-pointer hover:bg-blue-600 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
               onClick={() => openEditPopup(null)}
+              disabled={isLoading}
             >
-              + Add Task
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Processing...</span>
+                </>
+              ) : (
+                <span>+ Add Task</span>
+              )}
             </button>
           </div>
         </div>
@@ -97,6 +164,7 @@ const ProgressStatsPopup = ({ data, onClose, onEditTask, onDeleteTask, onToggleT
           onClose={() => setIsTaskPopupOpen(false)}
           onSubmit={handleTaskSubmit}
           taskToEdit={editingTask}
+          isLoading={isLoading}
         />
       )}
     </>

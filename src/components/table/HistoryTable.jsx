@@ -1,24 +1,55 @@
-import React, { useState } from "react";
 import { CheckCircle, Circle } from "lucide-react";
 
-const months = ["may", "april", "march", "february", "january", "december"];
-
 const HistoryTable = ({ data }) => {
-  const [tableData, setTableData] = useState(data);
-
-  const toggleMonth = (index, month) => {
-    const updated = [...tableData];
-    updated[index][month] = !updated[index][month];
-    updated[index].totalPaid = calculateTotal(updated[index]);
-    setTableData(updated);
+  const getLastSixMonths = () => {
+    const months = [];
+    const currentDate = new Date();
+    
+    for (let i = 0; i < 6; i++) {
+      const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+      months.push({
+        value: date.toISOString().slice(0, 7),
+        label: date.toLocaleString('default', { month: 'long' }).toLowerCase()
+      });
+    }
+    
+    return months;
   };
 
-  const calculateTotal = (person) => {
-    return (
-      months.filter((month) => person[month]).length *
-      parseInt(person.monthlyRent)
-    );
-  };
+  const months = getLastSixMonths();
+
+  const tableData = data.map(rent => {
+    const user = rent.user;
+    const rentHistory = rent.rents;
+    
+    // Get the most recent rent amount
+    const latestRent = rentHistory.sort((a, b) => 
+      new Date(b.createdAt) - new Date(a.createdAt)
+    )[0];
+
+    const monthStatus = {};
+    months.forEach(({ label }) => {
+      // Check all rent records for this month
+      const monthRents = rentHistory.filter(rent => 
+        rent.month.toLowerCase() === label
+      );
+      
+      // If any rent record for this month is Paid, show checkmark
+      monthStatus[label] = monthRents.some(rent => rent.status === "Paid");
+    });
+
+    const totalPaid = rentHistory.reduce((sum, r) => {
+      return sum + (r.status === "Paid" ? Number(r.amount || 0) : 0);
+    }, 0);
+
+    return {
+      name: user.fullName,
+      department: user.role,
+      monthlyRent: latestRent?.amount || 0,
+      totalPaid: totalPaid,
+      ...monthStatus
+    };
+  });
 
   return (
     <div className="bg-white mt-4 rounded-lg border border-gray-300">
@@ -31,9 +62,9 @@ const HistoryTable = ({ data }) => {
               <th className="text-left p-3 text-gray-500 font-medium border-b border-b-gray-300">Department</th>
               <th className="text-left p-3 text-gray-500 font-medium border-b border-b-gray-300">Monthly Rent</th>
               <th className="text-left p-3 text-gray-500 font-medium border-b border-b-gray-300">Total Paid</th>
-              {months.map((month) => (
-                <th key={month} className="text-center text-gray-500 font-medium p-3 capitalize border-b border-b-gray-300">
-                  {month}
+              {months.map(({ label }) => (
+                <th key={label} className="text-center text-gray-500 font-medium p-3 capitalize border-b border-b-gray-300">
+                  {label}
                 </th>
               ))}
             </tr>
@@ -45,13 +76,12 @@ const HistoryTable = ({ data }) => {
                 <td className="p-3 border-b border-b-gray-300">{person.department}</td>
                 <td className="p-3 border-b border-b-gray-300">${person.monthlyRent}</td>
                 <td className="p-3 border-b border-b-gray-300 text-blue-600">${person.totalPaid}</td>
-                {months.map((month) => (
+                {months.map(({ label }) => (
                   <td
-                    key={month}
-                    className="p-3 text-center cursor-pointer border-b border-b-gray-300"
-                    onClick={() => toggleMonth(index, month)}
+                    key={label}
+                    className="p-3 text-center border-b border-b-gray-300"
                   >
-                    {person[month] ? (
+                    {person[label] ? (
                       <CheckCircle className="text-green-500 w-5 h-5 inline" />
                     ) : (
                       <Circle className="text-red-500 w-5 h-5 inline" />

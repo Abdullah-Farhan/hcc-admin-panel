@@ -2,22 +2,45 @@
 import EventScheduler from "@/components/calenders/EventScheduler";
 import { ExternalLink, UserPlus } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
-import { members } from "@/lib/dashboardData";
+import { useEffect, useState } from "react";
 import ProgressCard from "@/components/cards/ProgressCard";
 import AddResourcePopup from "@/components/popups/AddResourcePopup";
-import { resources } from "@/lib/dashboardData";
 import ResourceCard from "@/components/cards/ResourceCard";
 import { toast } from "react-toastify";
+import useDashboardStore from "@/services/dashboard.service";
+import useResourcesStore from "@/services/resources.service";
+import useProgressStore from "@/services/progress.service";
 
 const page = () => {
-  const [selectedProgress, setSelectedProgress] = useState("90 Days");
+  const [selectedProgress, setSelectedProgress] = useState("Within 90 Days");
   const [isResourceOpen, setIsResourceOpen] = useState(false);
-  const [resourceData, setResources] = useState(resources)
+  const resourceData = useResourcesStore(state => state.resources)
+  const { fetchDashboardData } = useDashboardStore();
+  const progressData = useProgressStore(state => state.progressGroups);
+  console.log(progressData);
+  
 
   const onClose = () => {
     setIsResourceOpen(false);
   };
+
+  const getDashboardData = async () => {
+    await fetchDashboardData();    
+  }
+  useEffect(() => {
+    getDashboardData()
+  }, [])
+
+  // Filter progress data based on selected progress type
+  const filteredProgressData = progressData.filter((member) => {
+    const tasks = member.tasks || [];
+    const hasTasksInSection = tasks.some(task => task.section === selectedProgress);
+    
+    if (selectedProgress === "Within 90 Days") return hasTasksInSection;
+    if (selectedProgress === "Within Graduation") return hasTasksInSection;
+    if (selectedProgress === "Before Kitchen Use") return hasTasksInSection;
+    return true;
+  });
 
   return (
     <div className="px-8 py-10">
@@ -40,50 +63,50 @@ const page = () => {
             <div className="w-full flex space-x-2 rounded bg-gray-200 p-1 mt-6">
               <button
                 className={`w-1/3 rounded cursor-pointer ${
-                  selectedProgress === "90 Days"
+                  selectedProgress === "Within 90 Days"
                     ? "bg-white text-black"
                     : "text-gray-500"
                 }`}
-                onClick={() => setSelectedProgress("90 Days")}
+                onClick={() => setSelectedProgress("Within 90 Days")}
               >
                 90 Day
               </button>
               <button
                 className={`w-1/3 rounded cursor-pointer ${
-                  selectedProgress === "Graduation"
+                  selectedProgress === "Within Graduation"
                     ? "bg-white text-black"
                     : "text-gray-500"
                 }`}
-                onClick={() => setSelectedProgress("Graduation")}
+                onClick={() => setSelectedProgress("Within Graduation")}
               >
                 Graduation
               </button>
               <button
                 className={`w-1/3 rounded cursor-pointer ${
-                  selectedProgress === "Kitchen"
+                  selectedProgress === "Before Kitchen Use"
                     ? "bg-white text-black"
                     : "text-gray-500"
                 }`}
-                onClick={() => setSelectedProgress("Kitchen")}
+                onClick={() => setSelectedProgress("Before Kitchen Use")}
               >
                 Kitchen Use
               </button>
             </div>
 
             <div className="mt-4 space-y-4 max-h-72 overflow-auto">
-              {members
-                .filter((member) => {
-                  if (selectedProgress === "90 Days")
-                    return member.program === "90 Days";
-                  if (selectedProgress === "Graduation")
-                    return member.program === "Graduation Program";
-                  if (selectedProgress === "Kitchen")
-                    return member.program === "Before Kitchen Use";
-                  return true;
-                })
-                .map((member, index) => (
-                  <ProgressCard key={index} data={member} />
-                ))}
+              {filteredProgressData.length > 0 ? (
+                filteredProgressData.map((member, index) => (
+                  <ProgressCard 
+                    key={index} 
+                    data={member} 
+                    selectedProgress={selectedProgress}
+                  />
+                ))
+              ) : (
+                <div className="text-center py-4 text-gray-500">
+                  No members found for this progress type
+                </div>
+              )}
             </div>
           </div>
 
@@ -98,14 +121,13 @@ const page = () => {
                 + Add Resource
               </button>
             </div>
-            {resources.length > 0 ? (
+            {resourceData.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 mt-2 gap-2 max-h-56 overflow-auto">
                 {resourceData.map((resource, index) => (
                   <ResourceCard
                     data={resource}
                     key={index}
                     onRemove={() => {
-                      setResources(resources.filter((_, i) => i !== index));
                       toast.success("Resource Removed Successfully!")
                     }}
                   />
