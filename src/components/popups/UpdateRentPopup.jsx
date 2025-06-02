@@ -1,11 +1,20 @@
-import React, { useState } from "react";
+'use client'
+import { useState } from "react";
 
 const UpdateRentPopup = ({ user, onClose, onSave }) => {
   const [value, setValue] = useState(user.monthlyRent);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSave(user.name, Number(value));
+    setLoading(true);
+    try {
+      await onSave(user.id, Number(value));
+    } catch (error) {
+      console.error("Error updating rent:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -14,6 +23,7 @@ const UpdateRentPopup = ({ user, onClose, onSave }) => {
         <button
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl"
           onClick={onClose}
+          disabled={loading}
         >
           ×
         </button>
@@ -30,6 +40,7 @@ const UpdateRentPopup = ({ user, onClose, onSave }) => {
                 onChange={e => setValue(e.target.value)}
                 min={0}
                 required
+                disabled={loading}
               />
             </div>
           </div>
@@ -38,14 +49,16 @@ const UpdateRentPopup = ({ user, onClose, onSave }) => {
               type="button"
               onClick={onClose}
               className="px-4 py-2 rounded bg-gray-100 hover:bg-gray-200 text-sm font-medium"
+              disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium"
+              className="px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium disabled:opacity-50"
+              disabled={loading}
             >
-              Save
+              {loading ? "Saving..." : "Save"}
             </button>
           </div>
         </form>

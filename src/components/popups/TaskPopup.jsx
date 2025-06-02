@@ -6,7 +6,7 @@ const TaskPopup = ({ isOpen, onClose, onSubmit, taskToEdit }) => {
 
   useEffect(() => {
     if (taskToEdit) {
-      setTaskName(taskToEdit.taskName);
+      setTaskName(taskToEdit.title);
     } else {
       setTaskName("");
     }
@@ -16,8 +16,8 @@ const TaskPopup = ({ isOpen, onClose, onSubmit, taskToEdit }) => {
     if (taskName.trim() === "") return;
     
     const taskData = {
-      taskName: taskName.trim(),
-      completed: taskToEdit ? taskToEdit.completed : false
+      title: taskName.trim(),
+      notes: ""
     };
     
     onSubmit(taskData);

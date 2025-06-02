@@ -8,19 +8,37 @@ import {
   User as UserIcon,
   SquarePen,
 } from "lucide-react";
+import { toast } from "react-toastify";
 
-const RentCard = ({ user, onTogglePaid, onEditRent }) => {
+const RentCard = ({ user, onEditRent, onToggleStatus }) => {
+  console.log(user);
+  
+  const handleToggleStatus = async () => {
+    if (!user.rentId) {
+      toast.error("No rent record found for this user");
+      return;
+    }
+
+    try {
+      await onToggleStatus(user.id, user.rentId, !user.paid);
+      toast.success(`Rent marked as ${!user.paid ? "Paid" : "Unpaid"}`);
+    } catch (error) {
+      console.error("Error toggling rent status:", error);
+      toast.error("Failed to update rent status");
+    }
+  };
+
   return (
     <div
       className={`w-full bg-white rounded-xl shadow p-5 border-l-4 transition-all duration-300 ${
         user.paid ? "border-l-green-400" : "border-l-red-400"
       } relative`}
     >
-      {/* Toggle Paid/Unpaid */}
+      {/* Status Indicator */}
       <div
-        className="absolute top-4 right-4 cursor-pointer"
-        onClick={() => onTogglePaid(user.name)}
-        title={user.paid ? "Mark as Unpaid" : "Mark as Paid"}
+        className="absolute top-4 right-4 cursor-pointer hover:opacity-80 transition-opacity"
+        title={user.paid ? "Click to mark as Unpaid" : "Click to mark as Paid"}
+        onClick={handleToggleStatus}
       >
         {user.paid ? (
           <CheckCircle className="text-green-500" />
@@ -39,7 +57,7 @@ const RentCard = ({ user, onTogglePaid, onEditRent }) => {
           <UserIcon className="text-gray-600" />
         </div>
         <div className="flex flex-col">
-          <span className="font-semibold text-lg">{user.name}</span>
+          <span className="font-semibold text-lg">{user.fullName}</span>
           <span className="text-sm text-gray-500">{user.role}</span>
           {user.paid && user.lastPaymentDate && (
             <span className="text-green-600 text-xs font-medium">
